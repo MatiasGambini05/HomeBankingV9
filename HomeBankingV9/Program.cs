@@ -1,4 +1,6 @@
 using HomeBankingV9.Models;
+using HomeBankingV9.Repositories;
+using HomeBankingV9.Repositories.Implementations;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +12,9 @@ builder.Services.AddRazorPages();
 builder.Services.AddDbContext<HomeBankingContext>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("MyDBConnection"))
     );
+
+//Add repositories to the container.
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
 
 var app = builder.Build();
 
@@ -24,7 +29,6 @@ using (var scope = app.Services.CreateScope())
     } catch (Exception ex) {
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<HomeBankingContext>>();
         logger.LogError(ex, "Ocurrió un error creando la DB.");
-
     }
 }
 
@@ -36,6 +40,8 @@ using (var scope = app.Services.CreateScope())
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.MapControllers();
 
 app.UseAuthorization();
 

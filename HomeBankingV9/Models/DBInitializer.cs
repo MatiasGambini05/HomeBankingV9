@@ -16,9 +16,23 @@ namespace HomeBankingV9.Models
                     new Client { FirstName = "Martin", LastName = "Zuazo", Email = "sdasda@gmail.com", Password = "4567" },
                     new Client { FirstName = "Nicolás", LastName = "ASD", Email = "qwer@gmail.com", Password = "5678" },
                 };
-
                 context.Clients.AddRange(clients);
                 context.SaveChanges();
+            }
+
+            if (!context.Accounts.Any())
+            {
+                    Client eduClient = context.Clients.First(cl => cl.Email == "matiasgambini@gmail.com");
+                if (eduClient != null)
+                {
+                    var eduAccounts = new Account[]
+                    {
+                        new Account { Number = "VIN001", CreationDate = DateTime.Now, Balance = 100000, ClientId=eduClient.Id},
+                        new Account { Number = "VIN002", CreationDate = DateTime.Now, Balance = 200000, ClientId=eduClient.Id}
+                    };
+                    context.Accounts.AddRange(eduAccounts);
+                    context.SaveChanges();
+                }
             }
         }
     }
