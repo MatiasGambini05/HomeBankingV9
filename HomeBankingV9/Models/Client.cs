@@ -1,4 +1,5 @@
-﻿namespace HomeBankingV9.Models
+﻿using System.Collections.Generic;
+namespace HomeBankingV9.Models
 {
     public class Client
     {

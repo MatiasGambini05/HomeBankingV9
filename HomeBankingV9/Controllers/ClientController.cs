@@ -29,7 +29,7 @@ namespace HomeBankingV9.Controllers
             {
                 var clients = _clientRepository.GetAllClients();
                 var clientsDTO = clients.Select(c => new ClientDTO(c)).ToList();
-                return Ok(clientsDTO);
+                return StatusCode(StatusCodes.Status200OK, clientsDTO);
             }
             catch (Exception e)
             {
@@ -44,7 +44,7 @@ namespace HomeBankingV9.Controllers
             {
                 var client = _clientRepository.FindById(id);
                 var clientDTO = new ClientDTO(client);
-                return Ok(clientDTO);
+                return StatusCode(StatusCodes.Status200OK, clientDTO);
             }
             catch (Exception e)
             {

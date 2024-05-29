@@ -22,15 +22,15 @@ namespace HomeBankingV9.Models
 
             if (!context.Accounts.Any())
             {
-                    Client eduClient = context.Clients.First(cl => cl.Email == "matiasgambini@gmail.com");
-                if (eduClient != null)
+                Client matiClient = context.Clients.FirstOrDefault(cl => cl.Email == "matiasgambini@gmail.com");
+                if (matiClient != null)
                 {
-                    var eduAccounts = new Account[]
+                    var matiAccounts = new Account[]
                     {
-                        new Account { Number = "VIN001", CreationDate = DateTime.Now, Balance = 100000, ClientId=eduClient.Id},
-                        new Account { Number = "VIN002", CreationDate = DateTime.Now, Balance = 200000, ClientId=eduClient.Id}
+                        new Account { Number = "VIN001", CreationDate = DateTime.Now, Balance = 100000, ClientId=matiClient.Id},
+                        new Account { Number = "VIN002", CreationDate = DateTime.Now, Balance = 200000, ClientId=matiClient.Id}
                     };
-                    context.Accounts.AddRange(eduAccounts);
+                    context.Accounts.AddRange(matiAccounts);
                     context.SaveChanges();
                 }
             }
