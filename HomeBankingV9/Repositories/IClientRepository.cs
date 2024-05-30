@@ -4,8 +4,8 @@ namespace HomeBankingV9.Repositories
 {
     public interface IClientRepository
     {
-        IEnumerable<Client> GetAllClients();
+        IEnumerable<Client> FindAllClients();
+        Client FindClientById(long id);
         void Save(Client client);
-        Client FindById(long id);
     }
 }

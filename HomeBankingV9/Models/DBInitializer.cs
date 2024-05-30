@@ -34,6 +34,25 @@ namespace HomeBankingV9.Models
                     context.SaveChanges();
                 }
             }
+
+            if (!context.Transactions.Any())
+            {
+                Account matiAccount = context.Accounts.FirstOrDefault(acc => acc.Number == "VIN001");
+                if (matiAccount != null)
+                {
+                    var matiTransactions = new Transaction[]
+                    {
+                        new Transaction {Type = TransactionType.DEBIT, Amount = -1000, Description = "Compra en supermercado Buenos días.",
+                            Date= DateTime.Now.AddDays(-3), AccountId=matiAccount.Id},
+                        new Transaction {Type = TransactionType.CREDIT, Amount = 5000, Description = "Transferencia recibida cuenta propia.",
+                            Date= DateTime.Now.AddHours(+4), AccountId=matiAccount.Id},
+                        new Transaction {Type = TransactionType.CREDIT, Amount = 1000, Description = "Pago de haberes mayo.",
+                            Date= DateTime.Now.AddHours(+1), AccountId=matiAccount.Id}
+                    };
+                    context.Transactions.AddRange(matiTransactions);
+                    context.SaveChanges();
+                }
+            }
         }
     }
 }

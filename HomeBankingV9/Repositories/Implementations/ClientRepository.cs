@@ -9,18 +9,18 @@ namespace HomeBankingV9.Repositories.Implementations
         {
         }
 
-        public Client FindById(long id)
-        {
-            return FindByCondition(c => c.Id == id)
-                .Include(c => c.Accounts)
-                .FirstOrDefault();
-        }
-
-        public IEnumerable<Client> GetAllClients()
+        public IEnumerable<Client> FindAllClients()
         {
             return FindAll()
                 .Include(c => c.Accounts)
                 .ToList();
+        }
+
+        public Client FindClientById(long id)
+        {
+            return FindByCondition(c => c.Id == id)
+                .Include(c => c.Accounts)
+                .FirstOrDefault();
         }
 
         public void Save(Client client)

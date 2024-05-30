@@ -8,10 +8,10 @@ namespace HomeBankingV9.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ClientController : ControllerBase
+    public class ClientsController : ControllerBase
     {
         private readonly IClientRepository _clientRepository;
-        public ClientController(IClientRepository clientRepository)
+        public ClientsController(IClientRepository clientRepository)
         {
             _clientRepository = clientRepository;
         }
@@ -27,7 +27,7 @@ namespace HomeBankingV9.Controllers
         {
             try
             {
-                var clients = _clientRepository.GetAllClients();
+                var clients = _clientRepository.FindAllClients();
                 var clientsDTO = clients.Select(c => new ClientDTO(c)).ToList();
                 return StatusCode(StatusCodes.Status200OK, clientsDTO);
             }
@@ -42,7 +42,7 @@ namespace HomeBankingV9.Controllers
         {
             try
             {
-                var client = _clientRepository.FindById(id);
+                var client = _clientRepository.FindClientById(id);
                 var clientDTO = new ClientDTO(client);
                 return StatusCode(StatusCodes.Status200OK, clientDTO);
             }
