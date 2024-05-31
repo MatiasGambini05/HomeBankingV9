@@ -12,14 +12,20 @@ namespace HomeBankingV9.Repositories.Implementations
         public IEnumerable<Client> FindAllClients()
         {
             return FindAll()
-                .Include(c => c.Accounts)
+                .Include(a => a.Accounts)
+                .Include(ca => ca.Cards)
+                .Include(cl => cl.Loans)
+                    .ThenInclude(l => l.Loan)
                 .ToList();
         }
 
         public Client FindClientById(long id)
         {
             return FindByCondition(c => c.Id == id)
-                .Include(c => c.Accounts)
+                .Include(a => a.Accounts)
+                .Include(ca => ca.Cards)
+                .Include(cl => cl.Loans)
+                    .ThenInclude(l => l.Loan)
                 .FirstOrDefault();
         }
 

@@ -5,6 +5,12 @@ namespace HomeBankingV9.DTOs
 {
     public class AccountDTO
     {
+        public long Id { get; set; }
+        public string Number { get; set; }
+        public DateTime CreationDate { get; set; }
+        public double Balance { get; set; }
+        public ICollection<TransactionDTO> Transactions { get; set; }
+
         public AccountDTO(Account account)
         {
             Id = account.Id;
@@ -13,10 +19,5 @@ namespace HomeBankingV9.DTOs
             Balance = account.Balance;
             Transactions = account.Transactions.Select(tr => new TransactionDTO(tr)).ToList();
         }
-        public long Id { get; set; }
-        public string Number { get; set; }
-        public DateTime CreationDate { get; set; }
-        public double Balance { get; set; }
-        public ICollection<TransactionDTO> Transactions { get; set; }
     }
 }

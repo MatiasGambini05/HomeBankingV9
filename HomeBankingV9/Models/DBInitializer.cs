@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using System.Drawing;
+using System.Linq.Expressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HomeBankingV9.Models
 {
@@ -50,6 +52,66 @@ namespace HomeBankingV9.Models
                             Date= DateTime.Now.AddHours(+1), AccountId=matiAccount.Id}
                     };
                     context.Transactions.AddRange(matiTransactions);
+                    context.SaveChanges();
+                }
+            }
+
+            if (!context.Loans.Any())
+            {
+                    var matiLoans = new Loan[]
+                    {
+                        new Loan { Name = "Hipotecario", MaxAmount = 500000, Payments = "12,24,36,48,60" },
+                        new Loan { Name = "Personal", MaxAmount = 100000, Payments = "6,12,24" },
+                        new Loan { Name = "Prendario", MaxAmount = 300000, Payments = "6,12,24,36" },
+                    };
+                    context.Loans.AddRange(matiLoans);
+                    context.SaveChanges();
+            }
+            
+            if (!context.ClientLoans.Any())
+            {
+                Account matiAccount = context.Accounts.FirstOrDefault(acc => acc.Number == "VIN001");
+                if (matiAccount != null)
+                {
+                    var loanHipotecario = context.Loans.FirstOrDefault(hi => hi.Name == "Hipotecario");
+                    if (loanHipotecario != null)
+                    {
+                        var loanHi = new ClientLoan
+                        { Amount = 380000, Payments = "36", ClientId = matiAccount.Id, LoanId = loanHipotecario.Id };
+                        context.ClientLoans.Add(loanHi);
+                    }
+                    var loanPersonal = context.Loans.FirstOrDefault(pe => pe.Name == "Personal");
+                    if (loanPersonal != null)
+                    {
+                        var loanPe = new ClientLoan
+                        { Amount = 75000, Payments = "6", ClientId = matiAccount.Id, LoanId = loanPersonal.Id };
+                        context.ClientLoans.Add(loanPe);
+                    }
+                    var loanPrendario = context.Loans.FirstOrDefault(pr => pr.Name == "Prendario");
+                    if (loanPrendario != null)
+                    {
+                        var loanPr = new ClientLoan
+                        { Amount = 230000, Payments = "24", ClientId = matiAccount.Id, LoanId = loanPrendario.Id };
+                        context.ClientLoans.Add(loanPr);
+                    }
+                    context.SaveChanges();
+                }  
+            }
+            if (!context.Cards.Any())
+            {
+                Client matiClient = context.Clients.FirstOrDefault(acc => acc.LastName == "Gambini");
+                if (matiClient != null)
+                {
+                    var matiCards = new Card[]
+                    {
+                        new Card { CardHolder = matiClient.FirstName+" "+matiClient.LastName,
+                            Type = CardType.DEBIT, Color = CardColor.GOLD, Number = "1234 5678 9012 3456", Cvv = 123,
+                            FromDate = DateTime.Now.AddDays(-5), ThruDate = DateTime.Now.AddYears(+5), ClientId = matiClient.Id },
+                        new Card { CardHolder = matiClient.FirstName+" "+matiClient.LastName,
+                            Type = CardType.CREDIT, Color = CardColor.TITANIUM, Number = "6543 2109 8765 4321", Cvv = 321,
+                            FromDate = DateTime.Now.AddDays(-4), ThruDate = DateTime.Now.AddYears(+4), ClientId = matiClient.Id }
+                    };
+                    context.Cards.AddRange(matiCards);
                     context.SaveChanges();
                 }
             }
