@@ -6,6 +6,7 @@ namespace HomeBankingV9.Repositories
     {
         IEnumerable<Client> FindAllClients();
         Client FindClientById(long id);
+        Client FindClientByEmail(string email);
         void Save(Client client);
     }
 }

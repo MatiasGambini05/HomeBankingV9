@@ -1,6 +1,7 @@
 using HomeBankingV9.Models;
 using HomeBankingV9.Repositories;
 using HomeBankingV9.Repositories.Implementations;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +18,20 @@ builder.Services.AddDbContext<HomeBankingContext>(
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped <ITransactionRepository, TransactionRepository>();
+
+//Add authentication to the container.
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(au =>
+    {
+        au.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+        au.LoginPath = new PathString("/index.html");
+    });
+
+//Add authorization to the container. PREGUNTAR SOBRE LA LAMBDA EN ESTA PARTE, LAMBDA ADENTRO DE OTRA LAMBDA?
+builder.Services.AddAuthorization(aut =>
+{
+    aut.AddPolicy("Client Only", po => po.RequireClaim("Client"));
+});
 
 var app = builder.Build();
 
@@ -39,15 +54,17 @@ using (var scope = app.Services.CreateScope())
     {
         app.UseExceptionHandler("/Error");
     }
+
 app.UseStaticFiles();
 
 app.UseRouting();
 
 app.MapControllers();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapRazorPages();
 
 app.Run();
-
