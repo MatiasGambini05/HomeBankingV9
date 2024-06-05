@@ -1,4 +1,5 @@
-﻿using HomeBankingV9.Models;
+﻿using HomeBankingV9.DTOs;
+using HomeBankingV9.Models;
 using HomeBankingV9.Repositories;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -19,17 +20,24 @@ namespace HomeBankingV9.Controllers
             _clientRepository = clientRepository;
         }
 
-        [HttpPost("login")] //PREGUNTAR POR TODO ESTO
-        public async Task<IActionResult> Login([FromBody] Client client)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
         {
             try
             {
-                Client user = _clientRepository.FindClientByEmail(client.Email);
-                if (user == null || !String.Equals(user.Password, client.Password))
+                Client user = _clientRepository.FindClientByEmail(loginDTO.Email);
+                if (user == null || !String.Equals(user.Password, loginDTO.Password))
                     return Unauthorized();
 
                 var claims = new List<Claim>
-                { new Claim("Client", user.Email) };
+                { 
+                    new Claim("Client", user.Email)
+                };
+
+                if (user.Email.Equals("matiasgambini@gmail.com"))
+                    {
+                        claims.Add(new Claim("Admin", "true"));
+                    }    
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 

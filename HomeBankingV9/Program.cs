@@ -31,6 +31,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization(aut =>
 {
     aut.AddPolicy("Client Only", po => po.RequireClaim("Client"));
+    aut.AddPolicy("AdminOnly", po => po.RequireClaim("Admin"));
 });
 
 var app = builder.Build();

@@ -1,6 +1,7 @@
 ﻿using HomeBankingV9.DTOs;
 using HomeBankingV9.Models;
 using HomeBankingV9.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -18,6 +19,7 @@ namespace HomeBankingV9.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy ="AdminOnly")]
         public IActionResult GetAllClients()
         {
             try
@@ -70,29 +72,29 @@ namespace HomeBankingV9.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Client client)
+        public IActionResult Post([FromBody] NewClientDTO newClientDTO)
         {
             try
             {
-                if (String.IsNullOrEmpty(client.Email) || String.IsNullOrEmpty(client.Password) ||
-                    String.IsNullOrEmpty(client.FirstName) || String.IsNullOrEmpty(client.LastName))
+                if (String.IsNullOrEmpty(newClientDTO.Email) || String.IsNullOrEmpty(newClientDTO.Password) ||
+                    String.IsNullOrEmpty(newClientDTO.FirstName) || String.IsNullOrEmpty(newClientDTO.LastName))
                     return StatusCode(403, "Datos Inválidos");
 
-                Client user = _clientRepository.FindClientByEmail(client.Email);
+                Client user = _clientRepository.FindClientByEmail(newClientDTO.Email);
 
                 if (user != null)
                     return StatusCode(403, "El Email ya está en uso");
 
                 Client newClient = new Client
                 {
-                    Email = client.Email,
-                    Password = client.Password,
-                    FirstName = client.FirstName,
-                    LastName = client.LastName,
+                    Email = newClientDTO.Email,
+                    Password = newClientDTO.Password,
+                    FirstName = newClientDTO.FirstName,
+                    LastName = newClientDTO.LastName,
                 };
 
                 _clientRepository.Save(newClient);
-                return Created("", newClient);
+                return StatusCode(201, "Cliente creado correctamente");
             }
             catch (Exception e)
             {
