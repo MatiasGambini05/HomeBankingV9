@@ -24,6 +24,7 @@ namespace HomeBankingV9.Controllers
             _cardRepository = cardRepository;
         }
 
+        //MÉTODOS GET
         [HttpGet]
         [Authorize(Policy ="AdminOnly")]
         public IActionResult GetAllClients()
@@ -77,6 +78,55 @@ namespace HomeBankingV9.Controllers
             }
         }
 
+        [HttpGet("current/accounts")]
+        public IActionResult GetClientAccounts(long id)
+        {
+            try
+            {
+                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
+                if (email == string.Empty)
+                    return Forbid();
+
+                Client client = _clientRepository.FindClientByEmail(email);
+                ClientDTO clientDTO = new ClientDTO(client);
+                if (client == null)
+                    return Forbid();
+
+                var clientAccounts = clientDTO.Accounts;
+
+                return Ok(clientAccounts);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpGet("current/cards")]
+        public IActionResult GetClientCards(long id)
+        {
+            try
+            {
+                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
+                if (email == string.Empty)
+                    return Forbid();
+
+                Client client = _clientRepository.FindClientByEmail(email);
+                if (client == null)
+                    return Forbid();
+
+                ClientDTO clientDTO = new ClientDTO(client);
+                var clientCards = clientDTO.Cards;
+
+                return Ok(clientCards);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        //MÉTODOS POST
         [HttpPost]
         public IActionResult NewClient([FromBody] NewClientDTO newClientDTO)
         {
@@ -84,7 +134,7 @@ namespace HomeBankingV9.Controllers
             {
                 if (String.IsNullOrEmpty(newClientDTO.Email) || String.IsNullOrEmpty(newClientDTO.Password) ||
                     String.IsNullOrEmpty(newClientDTO.FirstName) || String.IsNullOrEmpty(newClientDTO.LastName))
-                    return StatusCode(403, "Datos Inválidos");
+                    return StatusCode(403, "Ningún campo puede estar vacío");
 
                 Client user = _clientRepository.FindClientByEmail(newClientDTO.Email);
 
@@ -101,30 +151,6 @@ namespace HomeBankingV9.Controllers
 
                 _clientRepository.Save(newClient);
                 return StatusCode(201, "Cliente creado correctamente");
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, e.Message);
-            }
-        }
-
-        [HttpGet("current/accounts")]
-        [Authorize(Policy = "Client Only")]
-        public IActionResult GetClientAccounts(long id)
-        {
-            try
-            {
-                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
-                if (email == string.Empty)
-                    return Forbid();
-
-                Client client = _clientRepository.FindClientByEmail(email);
-                if (client == null)
-                    return Forbid();
-
-                var clientAccounts = _accountRepository.FindAccountsByClient(client.Id);
-
-                return Ok(clientAccounts);
             }
             catch (Exception e)
             {
@@ -174,35 +200,8 @@ namespace HomeBankingV9.Controllers
             }
         }
 
-        [HttpGet("current/cards")]
-        [Authorize(Policy = "Client Only")]
-
-        public IActionResult GetClientCards(long id)
-        {
-            try
-            {
-                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
-                if (email == string.Empty)
-                    return Forbid();
-
-                Client client = _clientRepository.FindClientByEmail(email);
-                if (client == null)
-                    return Forbid();
-
-                ClientDTO clientDTO = new ClientDTO(client);
-                var clientCards = clientDTO.Cards;
-
-                return Ok(clientCards);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, e.Message);
-            }
-        }
-
         [HttpPost("current/cards")]
         [Authorize(Policy = "Client Only")]
-
         public IActionResult NewCard([FromBody] TypeColorDTO typeColorDTO)
         {
             try
@@ -215,11 +214,7 @@ namespace HomeBankingV9.Controllers
                 if (clientCards.Count() >= 6)
                     return StatusCode(403, "Alcanzaste el máximo de tarjetas");
 
-                var typeToInt = (CardType)Enum.Parse(typeof(CardType), typeColorDTO.Type, true);
-                var colorToInt = (CardColor)Enum.Parse(typeof(CardColor), typeColorDTO.Color, true);
 
-                var cardInfo = clientCards.Select(card => new {card.Type, card.Color}).ToList();
-                var cardColors = clientCards.Select(card => card.Color).ToList();
                 var debitCards = clientCards.Where(card => card.Type == "DEBIT").ToList();
                 var creditCards = clientCards.Where(card => card.Type == "CREDIT").ToList();
 
@@ -232,8 +227,12 @@ namespace HomeBankingV9.Controllers
                 if (countDebit >= 3 && typeColorDTO.Type == "DEBIT")
                     return StatusCode(403, "Alcanzaste el máximo de tarjetas de débito");
 
+                var cardInfo = clientCards.Select(card => new { card.Type, card.Color }).ToList();
                 if (cardInfo.Any(card => card.Type == typeColorDTO.Type && card.Color == typeColorDTO.Color))
                     return StatusCode(403, "La tarjeta ya está creada");
+
+                var typeToInt = (CardType)Enum.Parse(typeof(CardType), typeColorDTO.Type, true);
+                var colorToInt = (CardColor)Enum.Parse(typeof(CardColor), typeColorDTO.Color, true);
 
                 string cardNumber = "";
                 Random randomCard = new Random();

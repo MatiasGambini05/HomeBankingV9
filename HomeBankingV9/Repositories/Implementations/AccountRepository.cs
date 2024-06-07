@@ -13,14 +13,21 @@ namespace HomeBankingV9.Repositories.Implementations
         public IEnumerable<Account> FindAllAccounts()
         {
             return FindAll()
-            .Include(a => a.Transactions)
+            .Include(account => account.Transactions)
             .ToList();
         }
 
         public Account FindAccountById(long id)
         {
-            return FindByCondition(a => a.Id == id)
-            .Include(a => a.Transactions)
+            return FindByCondition(account => account.Id == id)
+            .Include(account => account.Transactions)
+            .FirstOrDefault();
+        }
+
+        public Account FindAccountByNumber(string number)
+        {
+            return FindByCondition(account => account.Number.ToUpper() == number.ToUpper())
+            .Include(account => account.Transactions)
             .FirstOrDefault();
         }
 
@@ -34,9 +41,13 @@ namespace HomeBankingV9.Repositories.Implementations
 
         public void Save(Account account)
         {
-            Create(account);
-            Savechanges();
-        }
+            if (account.Id == 0)
+                Create(account);
+            else
+                Update(account);
 
+            Savechanges();
+            RepositoryContext.ChangeTracker.Clear();
+        }
     }
 }
