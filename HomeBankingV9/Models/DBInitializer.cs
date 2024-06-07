@@ -12,11 +12,10 @@ namespace HomeBankingV9.Models
             {
                 var clients = new Client[]
                 {
-                    new Client { FirstName = "Matias", LastName = "Gambini", Email = "matiasgambini@gmail.com", Password = "1234" },
+                    new Client { FirstName = "Matías", LastName = "Gambini", Email = "matiasgambini@gmail.com", Password = "1234" },
+                    new Client { FirstName = "Facu", LastName = "Sommo", Email = "facusommo@gmail.com", Password = "4321" },
                     new Client { FirstName = "Maria", LastName = "Ferreyra", Email = "asd@gmail.com", Password = "2345" },
                     new Client { FirstName = "Juana", LastName = "Perez", Email = "dsa@gmail.com", Password = "3456" },
-                    new Client { FirstName = "Martin", LastName = "Zuazo", Email = "sdasda@gmail.com", Password = "4567" },
-                    new Client { FirstName = "Nicolás", LastName = "ASD", Email = "qwer@gmail.com", Password = "5678" },
                 };
                 context.Clients.AddRange(clients);
                 context.SaveChanges();
@@ -29,8 +28,8 @@ namespace HomeBankingV9.Models
                 {
                     var matiAccounts = new Account[]
                     {
-                        new Account { Number = "VIN001", CreationDate = DateTime.Now, Balance = 100000, ClientId=matiClient.Id},
-                        new Account { Number = "VIN002", CreationDate = DateTime.Now, Balance = 200000, ClientId=matiClient.Id}
+                        new Account { Number = "VIN-00000001", CreationDate = DateTime.Now, Balance = 100000, ClientId=matiClient.Id},
+                        new Account { Number = "VIN-00000002", CreationDate = DateTime.Now, Balance = 200000, ClientId=matiClient.Id}
                     };
                     context.Accounts.AddRange(matiAccounts);
                     context.SaveChanges();
@@ -70,7 +69,7 @@ namespace HomeBankingV9.Models
             
             if (!context.ClientLoans.Any())
             {
-                Account matiAccount = context.Accounts.FirstOrDefault(acc => acc.Number == "VIN001");
+                Account matiAccount = context.Accounts.FirstOrDefault(acc => acc.Number == "VIN-00000001");
                 if (matiAccount != null)
                 {
                     var loanHipotecario = context.Loans.FirstOrDefault(hi => hi.Name == "Hipotecario");
@@ -105,10 +104,10 @@ namespace HomeBankingV9.Models
                     var matiCards = new Card[]
                     {
                         new Card { CardHolder = matiClient.FirstName+" "+matiClient.LastName,
-                            Type = CardType.DEBIT, Color = CardColor.GOLD, Number = "1234 5678 9012 3456", Cvv = 123,
+                            Type = CardType.DEBIT, Color = CardColor.GOLD, Number = "1234-5678-9012-3456", Cvv = 123,
                             FromDate = DateTime.Now.AddDays(-5), ThruDate = DateTime.Now.AddYears(+5), ClientId = matiClient.Id },
                         new Card { CardHolder = matiClient.FirstName+" "+matiClient.LastName,
-                            Type = CardType.CREDIT, Color = CardColor.TITANIUM, Number = "6543 2109 8765 4321", Cvv = 321,
+                            Type = CardType.CREDIT, Color = CardColor.TITANIUM, Number = "6543-2109-8765-4321", Cvv = 321,
                             FromDate = DateTime.Now.AddDays(-4), ThruDate = DateTime.Now.AddYears(+4), ClientId = matiClient.Id }
                     };
                     context.Cards.AddRange(matiCards);

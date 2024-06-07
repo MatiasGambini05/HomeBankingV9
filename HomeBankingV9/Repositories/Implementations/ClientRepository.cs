@@ -31,12 +31,14 @@ namespace HomeBankingV9.Repositories.Implementations
 
         public Client FindClientByEmail(string email)
         {
-            return FindByCondition(c => c.Email.ToUpper() == email.ToUpper())
+            Client client = FindByCondition(c => c.Email.ToUpper() == email.ToUpper())
             .Include(a => a.Accounts)
             .Include(ca => ca.Cards)
             .Include(cl => cl.Loans)
                 .ThenInclude(l => l.Loan)
             .FirstOrDefault();
+
+            return client;
         }
 
         public void Save(Client client)
