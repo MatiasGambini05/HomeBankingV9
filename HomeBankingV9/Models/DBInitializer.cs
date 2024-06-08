@@ -12,10 +12,8 @@ namespace HomeBankingV9.Models
             {
                 var clients = new Client[]
                 {
-                    new Client { FirstName = "Matías", LastName = "Gambini", Email = "matiasgambini@gmail.com", Password = "1234" },
-                    new Client { FirstName = "Facu", LastName = "Sommo", Email = "facusommo@gmail.com", Password = "4321" },
-                    new Client { FirstName = "Maria", LastName = "Ferreyra", Email = "asd@gmail.com", Password = "2345" },
-                    new Client { FirstName = "Juana", LastName = "Perez", Email = "dsa@gmail.com", Password = "3456" },
+                    new Client { FirstName = "Mati", LastName = "Gambini", Email = "mati@gmail.com", Password = "1234" },
+                    new Client { FirstName = "Facu", LastName = "Sommo", Email = "facu@gmail.com", Password = "1234" }
                 };
                 context.Clients.AddRange(clients);
                 context.SaveChanges();
@@ -23,20 +21,19 @@ namespace HomeBankingV9.Models
 
             if (!context.Accounts.Any())
             {
-                Client matiClient = context.Clients.FirstOrDefault(cl => cl.Email == "matiasgambini@gmail.com");
+                Client matiClient = context.Clients.FirstOrDefault(cl => cl.Email == "mati@gmail.com");
                 if (matiClient != null)
                 {
                     var matiAccounts = new Account[]
                     {
-                        new Account { Number = "VIN-00000001", CreationDate = DateTime.Now, Balance = 100000, ClientId=matiClient.Id},
-                        new Account { Number = "VIN-00000002", CreationDate = DateTime.Now, Balance = 200000, ClientId=matiClient.Id}
+                        new Account { Number = "VIN-00000001", CreationDate = DateTime.Now, Balance = 1000, ClientId=matiClient.Id},
                     };
                     context.Accounts.AddRange(matiAccounts);
                     context.SaveChanges();
                 }
             }
 
-            if (!context.Transactions.Any())
+            /*if (!context.Transactions.Any())
             {
                 Account matiAccount = context.Accounts.FirstOrDefault(acc => acc.Number == "VIN-00000001");
                 if (matiAccount != null)
@@ -53,7 +50,7 @@ namespace HomeBankingV9.Models
                     context.Transactions.AddRange(matiTransactions);
                     context.SaveChanges();
                 }
-            }
+            }*/
 
             if (!context.Loans.Any())
             {
@@ -67,26 +64,26 @@ namespace HomeBankingV9.Models
                     context.SaveChanges();
             }
             
-            if (!context.ClientLoans.Any())
+            /*if (!context.ClientLoans.Any())
             {
                 Account matiAccount = context.Accounts.FirstOrDefault(acc => acc.Number == "VIN-00000001");
                 if (matiAccount != null)
                 {
-                    var loanHipotecario = context.Loans.FirstOrDefault(hi => hi.Name == "Hipotecario");
+                    var loanHipotecario = context.Loans.FirstOrDefault(hi => hi.Name == "Prestamo Hipotecario");
                     if (loanHipotecario != null)
                     {
                         var loanHi = new ClientLoan
                         { Amount = 380000, Payments = "36", ClientId = matiAccount.Id, LoanId = loanHipotecario.Id };
                         context.ClientLoans.Add(loanHi);
                     }
-                    var loanPersonal = context.Loans.FirstOrDefault(pe => pe.Name == "Personal");
+                    var loanPersonal = context.Loans.FirstOrDefault(pe => pe.Name == "Prestamo Personal");
                     if (loanPersonal != null)
                     {
                         var loanPe = new ClientLoan
                         { Amount = 75000, Payments = "6", ClientId = matiAccount.Id, LoanId = loanPersonal.Id };
                         context.ClientLoans.Add(loanPe);
                     }
-                    var loanPrendario = context.Loans.FirstOrDefault(pr => pr.Name == "Prendario");
+                    var loanPrendario = context.Loans.FirstOrDefault(pr => pr.Name == "Prestamo Prendario");
                     if (loanPrendario != null)
                     {
                         var loanPr = new ClientLoan
@@ -95,8 +92,9 @@ namespace HomeBankingV9.Models
                     }
                     context.SaveChanges();
                 }  
-            }
-            if (!context.Cards.Any())
+            }*/
+
+            /*if (!context.Cards.Any())
             {
                 Client matiClient = context.Clients.FirstOrDefault(acc => acc.LastName == "Gambini");
                 if (matiClient != null)
@@ -113,7 +111,7 @@ namespace HomeBankingV9.Models
                     context.Cards.AddRange(matiCards);
                     context.SaveChanges();
                 }
-            }
+            }*/
         }
     }
 }

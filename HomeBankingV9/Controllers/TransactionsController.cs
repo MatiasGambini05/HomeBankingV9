@@ -73,7 +73,7 @@ namespace HomeBankingV9.Controllers
                 {
                     Type = TransactionType.DEBIT,
                     Amount = transfDTO.Amount,
-                    Description = transfDTO.Description + " - Transferencia realizada hacia cuenta " + accountNumberFrom + ".",
+                    Description = transfDTO.Description + " - Transferencia realizada hacia cuenta " + accountNumberTo + ".",
                     Date = DateTime.Now,
                     AccountId =fromAccount.Id
                 };
@@ -83,7 +83,7 @@ namespace HomeBankingV9.Controllers
                 {
                     Type = TransactionType.CREDIT,
                     Amount = transfDTO.Amount,
-                    Description = transfDTO.Description + " - Transferencia recibida desde cuenta " + accountNumberTo + ".",
+                    Description = transfDTO.Description + " - Transferencia recibida desde cuenta " + accountNumberFrom + ".",
                     Date = DateTime.Now,
                     AccountId = toAccount.Id
                 };

@@ -27,6 +27,7 @@ namespace HomeBankingV9.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "Client Only")]
         public IActionResult GetAllLoans()
         {
             try
@@ -41,6 +42,7 @@ namespace HomeBankingV9.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "Client Only")]
         public IActionResult NewLoan([FromBody] NewLoanDTO newLoanDTO)
         {
             try
@@ -95,7 +97,7 @@ namespace HomeBankingV9.Controllers
                     Amount = newLoanDTO.Amount,
                     Description = requiredLoan.Name + " aprobado en " + newLoanDTO.Payments + " cuotas.",
                     Date = DateTime.Now,
-                    AccountId = client.Id
+                    AccountId = loanAccount.Id
                 };
                 _transactionRepository.Save(loanDetail);
 

@@ -75,6 +75,7 @@
                         <div class="col">
                             <h2 class="display-6">Debit Cards</h2>
                             <a v-if="clientInfo.cards != null && clientInfo.cards.length < 6" href="create-cards.html" id="create" class="btn btn-sm btn-outline-success">Create</a>
+                            <br>
                             <span class="small" v-if="debitCards.length <= 0">No debit cards</span>
                         </div>
                     </div>
