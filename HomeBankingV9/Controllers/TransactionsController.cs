@@ -25,7 +25,6 @@ namespace HomeBankingV9.Controllers
 
         [HttpPost]
         [Authorize(Policy = "Client Only")]
-        
         public IActionResult NewTransfer([FromBody] TransfDTO transfDTO)
         {
             try
@@ -66,12 +65,15 @@ namespace HomeBankingV9.Controllers
                 _accountRepository.Save(fromAccount);
                 toAccount.Balance = newToBalance;
                 _accountRepository.Save(toAccount);
+
+                var accountNumberFrom = fromAccount.Number;
+                var accountNumberTo = toAccount.Number;
                 
                 Transaction transactionDebit = new Transaction
                 {
                     Type = TransactionType.DEBIT,
                     Amount = transfDTO.Amount,
-                    Description = transfDTO.Description,
+                    Description = transfDTO.Description + " - Transferencia realizada hacia cuenta " + accountNumberFrom + ".",
                     Date = DateTime.Now,
                     AccountId =fromAccount.Id
                 };
@@ -81,17 +83,16 @@ namespace HomeBankingV9.Controllers
                 {
                     Type = TransactionType.CREDIT,
                     Amount = transfDTO.Amount,
-                    Description = transfDTO.Description,
+                    Description = transfDTO.Description + " - Transferencia recibida desde cuenta " + accountNumberTo + ".",
                     Date = DateTime.Now,
                     AccountId = toAccount.Id
                 };
                 _transactionRepository.Save(transactionCredit);
 
-                return StatusCode(201, "Transferencia realizada correctamente");
+                return StatusCode(201, "Transferencia realizada correctamente.");
             }
             catch (Exception e)
             {
-
                 return StatusCode(500, e.Message);
             }
         }

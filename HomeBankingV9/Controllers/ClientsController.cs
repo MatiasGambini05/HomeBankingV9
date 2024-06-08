@@ -42,6 +42,7 @@ namespace HomeBankingV9.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public IActionResult GetClientsByID(long id)
         {
             try

@@ -59,9 +59,9 @@ namespace HomeBankingV9.Models
             {
                     var matiLoans = new Loan[]
                     {
-                        new Loan { Name = "Hipotecario", MaxAmount = 500000, Payments = "12,24,36,48,60" },
-                        new Loan { Name = "Personal", MaxAmount = 100000, Payments = "6,12,24" },
-                        new Loan { Name = "Prendario", MaxAmount = 300000, Payments = "6,12,24,36" },
+                        new Loan { Name = "Prestamo Hipotecario", MaxAmount = 500000, Payments = "12,24,36,48,60" },
+                        new Loan { Name = "Prestamo Personal", MaxAmount = 100000, Payments = "6,12,24" },
+                        new Loan { Name = "Prestamo Prendario", MaxAmount = 300000, Payments = "6,12,24,36" },
                     };
                     context.Loans.AddRange(matiLoans);
                     context.SaveChanges();
