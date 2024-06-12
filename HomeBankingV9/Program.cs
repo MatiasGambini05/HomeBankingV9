@@ -32,6 +32,7 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<ICardService, CardService>();
 builder.Services.AddScoped<ILoanService, LoanService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 //Add authentication to the container.
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

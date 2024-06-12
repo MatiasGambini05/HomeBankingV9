@@ -8,5 +8,6 @@ namespace HomeBankingV9.Services
         IEnumerable<AccountDTO> GetAllAccounts();
         AccountDTO GetAccountById(long id);
         void NewAccount(string email);
+        void Save(Account account);
     }
 }

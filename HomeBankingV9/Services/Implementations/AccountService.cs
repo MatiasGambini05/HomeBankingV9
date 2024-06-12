@@ -55,5 +55,10 @@ namespace HomeBankingV9.Services.Implementations
             };
             _accountRepository.Save(newAccount);
         }
+
+        public void Save(Account account)
+        {
+            _accountRepository.Save(account);
+        }
     }
 }

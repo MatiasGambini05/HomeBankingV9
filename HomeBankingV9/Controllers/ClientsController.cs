@@ -3,6 +3,7 @@ using HomeBankingV9.Models;
 using HomeBankingV9.Repositories;
 using HomeBankingV9.Repositories.Implementations;
 using HomeBankingV9.Services;
+using HomeBankingV9.Services.Implementations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,22 +19,22 @@ namespace HomeBankingV9.Controllers
     [ApiController]
     public class ClientsController : ControllerBase
     {
-        private readonly IClientRepository _clientRepository;
         private readonly IClientService _clientService;
-        private readonly IAccountRepository _accountRepository;
         private readonly IAccountService _accountService;
-        private readonly ICardRepository _cardRepository;
         private readonly ICardService _cardService;
-        public ClientsController(IClientRepository clientRepository, IAccountRepository accountRepository,
-            ICardRepository cardRepository, IClientService clientService, IAccountService accountService,
-            ICardService cardService)
+/*      private readonly IClientRepository _clientRepository;      
+        private readonly IAccountRepository _accountRepository;
+        private readonly ICardRepository _cardRepository;*/
+        public ClientsController(IClientService clientService, IAccountService accountService,
+            ICardService cardService /*, IClientRepository clientRepository, 
+            IAccountRepository accountRepository, ICardRepository cardRepository */)
         {
-            _clientRepository = clientRepository;
-            _accountRepository = accountRepository;
-            _cardRepository = cardRepository;
             _clientService = clientService;
             _accountService = accountService;
             _cardService = cardService;
+/*          _clientRepository = clientRepository;
+ *          _accountRepository = accountRepository;
+            _cardRepository = cardRepository;*/
         }
 
         //MÉTODOS GET
@@ -83,7 +84,7 @@ namespace HomeBankingV9.Controllers
                     return StatusCode(403);
 
 
-                return Ok(clientDTO);
+                return StatusCode(200, clientDTO);
             }
             catch (Exception e)
             {
@@ -104,7 +105,7 @@ namespace HomeBankingV9.Controllers
                 if (clientAccountsDTO == null)
                     return StatusCode(403);
 
-                return Ok(clientAccountsDTO);
+                return StatusCode(200, clientAccountsDTO);
             }
             catch (Exception e)
             {
@@ -125,7 +126,7 @@ namespace HomeBankingV9.Controllers
                 if (clientCards == null)
                     return StatusCode(403);
 
-                return Ok(clientCards);
+                return StatusCode(200, clientCards);
             }
             catch (Exception e)
             {

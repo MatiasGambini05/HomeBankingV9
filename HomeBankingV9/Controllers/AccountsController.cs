@@ -13,13 +13,13 @@ namespace HomeBankingV9.Controllers
     [ApiController]
     public class AccountsController : ControllerBase
     {
-        private readonly IAccountRepository _accountRepository;
         private readonly IAccountService _accountService;
+        /*private readonly IAccountRepository _accountRepository;*/
 
-        public AccountsController(IAccountRepository accountRepository, IAccountService accountService)
+        public AccountsController(IAccountService accountService /*, IAccountRepository accountRepository*/)
         {
-            _accountRepository = accountRepository;
             _accountService = accountService;
+            /*_accountRepository = accountRepository;*/
         }
 
         [HttpGet]
@@ -38,7 +38,7 @@ namespace HomeBankingV9.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "Client Only")]
         public IActionResult FindAccountById(long id)
         {
             try
