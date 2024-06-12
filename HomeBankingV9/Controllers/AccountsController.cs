@@ -1,11 +1,7 @@
 ﻿using HomeBankingV9.DTOs;
-using HomeBankingV9.Repositories;
 using HomeBankingV9.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Collections.Generic;
 
 namespace HomeBankingV9.Controllers
 {

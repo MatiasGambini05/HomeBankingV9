@@ -1,6 +1,4 @@
-﻿using HomeBankingV9.Models;
-
-namespace HomeBankingV9.DTOs
+﻿namespace HomeBankingV9.DTOs
 {
     public class TypeColorDTO
     {

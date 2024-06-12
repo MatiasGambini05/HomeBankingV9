@@ -1,7 +1,6 @@
 ﻿using HomeBankingV9.DTOs;
 using HomeBankingV9.Models;
 using HomeBankingV9.Repositories;
-using HomeBankingV9.Repositories.Implementations;
 
 namespace HomeBankingV9.Services.Implementations
 {

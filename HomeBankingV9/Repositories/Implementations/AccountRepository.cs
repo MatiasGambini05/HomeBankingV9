@@ -1,6 +1,5 @@
 ﻿using HomeBankingV9.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace HomeBankingV9.Repositories.Implementations
 {

@@ -4,14 +4,9 @@ using HomeBankingV9.Repositories.Implementations;
 using HomeBankingV9.Services;
 using HomeBankingV9.Services.Implementations;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddRazorPages();
-builder.Services.AddHttpContextAccessor();
 
 // Add context to the container.
 builder.Services.AddDbContext<HomeBankingContext>(
@@ -27,6 +22,7 @@ builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 builder.Services.AddScoped<IClientLoansRepository, ClientLoansRepository>();
 
 //Add services to the container.
+builder.Services.AddRazorPages();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IClientService, ClientService>();

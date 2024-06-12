@@ -1,8 +1,4 @@
-﻿using System.Drawing;
-using System.Linq.Expressions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace HomeBankingV9.Models
+﻿namespace HomeBankingV9.Models
 {
     public class DBInitializer
     {

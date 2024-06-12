@@ -1,5 +1,4 @@
 ﻿using HomeBankingV9.Models;
-using System.Text.Json.Serialization;
 
 namespace HomeBankingV9.DTOs
 {

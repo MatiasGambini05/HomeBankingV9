@@ -1,14 +1,9 @@
 ﻿using HomeBankingV9.DTOs;
-using HomeBankingV9.Models;
-using HomeBankingV9.Repositories;
-using HomeBankingV9.Repositories.Implementations;
 using HomeBankingV9.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 
 namespace HomeBankingV9.Controllers
