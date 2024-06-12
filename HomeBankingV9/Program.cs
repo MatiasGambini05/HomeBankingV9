@@ -1,13 +1,17 @@
 using HomeBankingV9.Models;
 using HomeBankingV9.Repositories;
 using HomeBankingV9.Repositories.Implementations;
+using HomeBankingV9.Services;
+using HomeBankingV9.Services.Implementations;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddHttpContextAccessor();
 
 // Add context to the container.
 builder.Services.AddDbContext<HomeBankingContext>(
@@ -22,6 +26,13 @@ builder.Services.AddScoped<ICardRepository, CardRepository>();
 builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 builder.Services.AddScoped<IClientLoansRepository, ClientLoansRepository>();
 
+//Add services to the container.
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<ICardService, CardService>();
+builder.Services.AddScoped<ILoanService, LoanService>();
+
 //Add authentication to the container.
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(au =>
@@ -30,7 +41,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         au.LoginPath = new PathString("/index.html");
     });
 
-//Add authorization to the container. PREGUNTAR SOBRE LA LAMBDA EN ESTA PARTE, LAMBDA ADENTRO DE OTRA LAMBDA?
+//Add authorization to the container.
 builder.Services.AddAuthorization(aut =>
 {
     aut.AddPolicy("Client Only", po => po.RequireClaim("Client"));

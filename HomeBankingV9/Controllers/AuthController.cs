@@ -1,11 +1,15 @@
 ﻿using HomeBankingV9.DTOs;
 using HomeBankingV9.Models;
 using HomeBankingV9.Repositories;
+using HomeBankingV9.Repositories.Implementations;
+using HomeBankingV9.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Threading.Tasks;
+
 
 namespace HomeBankingV9.Controllers
 {
@@ -13,11 +17,13 @@ namespace HomeBankingV9.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private IClientRepository _clientRepository;
         
-        public AuthController(IClientRepository clientRepository)
+        private readonly IAuthService _authService;
+
+        public AuthController(IAuthService authService)
         {
-            _clientRepository = clientRepository;
+
+            _authService = authService;
         }
 
         [HttpPost("login")]
@@ -25,26 +31,11 @@ namespace HomeBankingV9.Controllers
         {
             try
             {
-                Client user = _clientRepository.FindClientByEmail(loginDTO.Email);
-                if (user == null || !String.Equals(user.Password, loginDTO.Password))
-                    return Unauthorized();
-
-                var claims = new List<Claim>
-                { 
-                    new Claim("Client", user.Email)
-                };
-
-                if (user.Email.Equals("matiasgambini@gmail.com"))
-                    {
-                        claims.Add(new Claim("Admin", "true"));
-                    }    
-
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
+                ClaimsIdentity login = _authService.IsAuthenticated(loginDTO);
                 await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(login));
 
-                return Ok();
+                return StatusCode(200, "Cliente logeado correctamente.");
             }
             catch (Exception e)
             {
@@ -59,7 +50,7 @@ namespace HomeBankingV9.Controllers
             {
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-                return Ok();
+                return StatusCode(200, "Cliente deslogeado correctamente.");
             }
             catch (Exception e)
             {

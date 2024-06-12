@@ -2,10 +2,14 @@
 using HomeBankingV9.Models;
 using HomeBankingV9.Repositories;
 using HomeBankingV9.Repositories.Implementations;
+using HomeBankingV9.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Security.Principal;
 
 namespace HomeBankingV9.Controllers
@@ -15,13 +19,21 @@ namespace HomeBankingV9.Controllers
     public class ClientsController : ControllerBase
     {
         private readonly IClientRepository _clientRepository;
+        private readonly IClientService _clientService;
         private readonly IAccountRepository _accountRepository;
+        private readonly IAccountService _accountService;
         private readonly ICardRepository _cardRepository;
-        public ClientsController(IClientRepository clientRepository, IAccountRepository accountRepository, ICardRepository cardRepository)
+        private readonly ICardService _cardService;
+        public ClientsController(IClientRepository clientRepository, IAccountRepository accountRepository,
+            ICardRepository cardRepository, IClientService clientService, IAccountService accountService,
+            ICardService cardService)
         {
             _clientRepository = clientRepository;
             _accountRepository = accountRepository;
             _cardRepository = cardRepository;
+            _clientService = clientService;
+            _accountService = accountService;
+            _cardService = cardService;
         }
 
         //MÉTODOS GET
@@ -31,13 +43,13 @@ namespace HomeBankingV9.Controllers
         {
             try
             {
-                var clients = _clientRepository.FindAllClients();
-                var clientsDTO = clients.Select(c => new ClientDTO(c)).ToList();
-                return StatusCode(StatusCodes.Status200OK, clientsDTO);
+               IEnumerable<ClientDTO> clientsDTO = _clientService.GetAllClientsDTO();
+
+                return StatusCode(200, clientsDTO);
             }
             catch (Exception e)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -47,13 +59,13 @@ namespace HomeBankingV9.Controllers
         {
             try
             {
-                var client = _clientRepository.FindClientById(id);
-                var clientDTO = new ClientDTO(client);
-                return StatusCode(StatusCodes.Status200OK, clientDTO);
+                ClientDTO clientDTO = _clientService.GetClientDTOById(id);
+
+                return StatusCode(200, clientDTO);
             }
             catch (Exception e)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -64,13 +76,13 @@ namespace HomeBankingV9.Controllers
             {
                 string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
                 if (email == string.Empty)
-                    return Forbid();
+                    return StatusCode(403);
 
-                Client client = _clientRepository.FindClientByEmail(email);
-                if (client == null)
-                    return Forbid();
+                ClientDTO clientDTO = _clientService.GetClientDTOByEmail(email);
+                if (clientDTO == null)
+                    return StatusCode(403);
 
-                var clientDTO = new ClientDTO(client);
+
                 return Ok(clientDTO);
             }
             catch (Exception e)
@@ -86,16 +98,13 @@ namespace HomeBankingV9.Controllers
             {
                 string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
                 if (email == string.Empty)
-                    return Forbid();
+                    return StatusCode(403);
 
-                Client client = _clientRepository.FindClientByEmail(email);
-                ClientDTO clientDTO = new ClientDTO(client);
-                if (client == null)
-                    return Forbid();
+                ICollection<ClientAccountDTO> clientAccountsDTO = _clientService.GetClientAccounts(email);
+                if (clientAccountsDTO == null)
+                    return StatusCode(403);
 
-                var clientAccounts = clientDTO.Accounts;
-
-                return Ok(clientAccounts);
+                return Ok(clientAccountsDTO);
             }
             catch (Exception e)
             {
@@ -110,14 +119,11 @@ namespace HomeBankingV9.Controllers
             {
                 string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
                 if (email == string.Empty)
-                    return Forbid();
+                    return StatusCode(403);
 
-                Client client = _clientRepository.FindClientByEmail(email);
-                if (client == null)
-                    return Forbid();
-
-                ClientDTO clientDTO = new ClientDTO(client);
-                var clientCards = clientDTO.Cards;
+                ICollection<CardDTO> clientCards = _clientService.GetClientCards(email);
+                if (clientCards == null)
+                    return StatusCode(403);
 
                 return Ok(clientCards);
             }
@@ -133,24 +139,16 @@ namespace HomeBankingV9.Controllers
         {
             try
             {
-                if (String.IsNullOrEmpty(newClientDTO.Email) || String.IsNullOrEmpty(newClientDTO.Password) ||
-                    String.IsNullOrEmpty(newClientDTO.FirstName) || String.IsNullOrEmpty(newClientDTO.LastName))
+                var isEmptyField = _clientService.IsEmptyField(newClientDTO);
+                if (isEmptyField == false)
                     return StatusCode(403, "Ningún campo puede estar vacío");
 
-                Client user = _clientRepository.FindClientByEmail(newClientDTO.Email);
-
-                if (user != null)
+                bool emailExist = _clientService.EmailExist(newClientDTO.Email);
+                if (emailExist == true)
                     return StatusCode(403, "El Email ya está en uso");
 
-                Client newClient = new Client
-                {
-                    Email = newClientDTO.Email,
-                    Password = newClientDTO.Password,
-                    FirstName = newClientDTO.FirstName,
-                    LastName = newClientDTO.LastName,
-                };
+                _clientService.NewClient(newClientDTO);
 
-                _clientRepository.Save(newClient);
                 return StatusCode(201, "Cliente creado correctamente");
             }
             catch (Exception e)
@@ -166,33 +164,14 @@ namespace HomeBankingV9.Controllers
             try
             {
                 var clientEmail = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
-                Client client= _clientRepository.FindClientByEmail(clientEmail);
-                ClientDTO clientDTO = new ClientDTO(client);
-                var clientId = clientDTO.Id;
-                var clientAccounts = clientDTO.Accounts;
-                var allAccounts = _accountRepository.FindAllAccounts();
+                if (clientEmail == string.Empty)
+                    return StatusCode(403);
 
-                if (clientAccounts.Count() >= 3)
+                if (_clientService.GetAccountsAmount(clientEmail) >= 3)
                     return StatusCode(403, "El cliente alcanzó el número máximo de cuentas");
 
-                Random random = new Random();
-                int randomNumber = random.Next(0, 99999999);
-                string randomAccount = "VIN-" + randomNumber.ToString("D8");
+                _accountService.NewAccount(clientEmail);
 
-                while (allAccounts.Any(acc => acc.Number == randomAccount))
-                {
-                    int randomNumber2 = random.Next(0, 999999);
-                    randomAccount = "VIN" + randomNumber2.ToString("D8");
-                }
-
-                Account newAccount = new Account
-                {
-                    Number = randomAccount,
-                    CreationDate = DateTime.Now,
-                    Balance = 0,
-                    ClientId = clientId
-                };
-                _accountRepository.Save(newAccount);
                 return StatusCode(201, "Cuenta creada correctamente");
             }
             catch (Exception e)
@@ -208,74 +187,14 @@ namespace HomeBankingV9.Controllers
             try
             {
                 var clientEmail = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
-                Client client = _clientRepository.FindClientByEmail(clientEmail);
-                ClientDTO clientDTO = new ClientDTO(client);
-                var clientCards = clientDTO.Cards;
+                    if (clientEmail == string.Empty)
+                        return StatusCode(403);
 
-                if (clientCards.Count() >= 6)
-                    return StatusCode(403, "Alcanzaste el máximo de tarjetas");
-
-
-                var debitCards = clientCards.Where(card => card.Type == "DEBIT").ToList();
-                var creditCards = clientCards.Where(card => card.Type == "CREDIT").ToList();
-
-                var countDebit = debitCards.Count();
-                var countCredit = creditCards.Count();
-
-                if(countCredit >= 3 && typeColorDTO.Type == "CREDIT")
-                    return StatusCode(403, "Alcanzaste el máximo de tarjetas de crédito");
-
-                if (countDebit >= 3 && typeColorDTO.Type == "DEBIT")
-                    return StatusCode(403, "Alcanzaste el máximo de tarjetas de débito");
-
-                var cardInfo = clientCards.Select(card => new { card.Type, card.Color }).ToList();
-                if (cardInfo.Any(card => card.Type == typeColorDTO.Type && card.Color == typeColorDTO.Color))
-                    return StatusCode(403, "La tarjeta ya está creada");
-
-                var typeToInt = (CardType)Enum.Parse(typeof(CardType), typeColorDTO.Type, true);
-                var colorToInt = (CardColor)Enum.Parse(typeof(CardColor), typeColorDTO.Color, true);
-
-                string cardNumber = "";
-                Random randomCard = new Random();
-                for (int i=0; i < 4; i++)
-                {
-                    int randomCardNumber = randomCard.Next(0, 10000);
-                    cardNumber = cardNumber + randomCardNumber.ToString("D4") + "-";
-                }
-                cardNumber = cardNumber.Remove(cardNumber.Length - 1);
-                Card verif = _cardRepository.FindCardByNumber(cardNumber);
-
-                if (verif != null)
-                {
-                    do
-                    {
-                        cardNumber = "";
-                        for (int i = 0; i < 4; i++)
-                        {
-                            int randomCardNumber = randomCard.Next(0, 10000);
-                            cardNumber = cardNumber + randomCardNumber.ToString("D4") + "-";
-                        }
-                        cardNumber = cardNumber.Remove(cardNumber.Length - 1);
-                        verif = _cardRepository.FindCardByNumber(cardNumber);
-                    } while (verif != null);
-                }
-
-                Random randomCvv = new Random();
-                int randomCvvNumber = randomCvv.Next(100, 1000);
-
-                Card newCard = new Card
-                {
-                    CardHolder = clientDTO.FirstName + " " + clientDTO.LastName,
-                    Type = typeToInt,
-                    Color = colorToInt,
-                    Number = cardNumber,
-                    Cvv = randomCvvNumber,
-                    FromDate = DateTime.Now,
-                    ThruDate = DateTime.Now.AddYears(5),
-                    ClientId = clientDTO.Id
-                };
-                _cardRepository.Save(newCard);
-                return StatusCode(201, "Tarjeta creada correctamente");
+                string status = _cardService.NewCard(clientEmail, typeColorDTO);
+                    if (status == "Tarjeta creada correctamente.")
+                    return StatusCode(201, status);
+                else
+                    return StatusCode(403, status);
             }
             catch (Exception e)
             {

@@ -1,8 +1,11 @@
 ﻿using HomeBankingV9.DTOs;
 using HomeBankingV9.Repositories;
+using HomeBankingV9.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Generic;
 
 namespace HomeBankingV9.Controllers
 {
@@ -11,39 +14,41 @@ namespace HomeBankingV9.Controllers
     public class AccountsController : ControllerBase
     {
         private readonly IAccountRepository _accountRepository;
+        private readonly IAccountService _accountService;
 
-        public AccountsController(IAccountRepository accountRepository)
+        public AccountsController(IAccountRepository accountRepository, IAccountService accountService)
         {
             _accountRepository = accountRepository;
+            _accountService = accountService;
         }
 
         [HttpGet]
+        [Authorize(Policy = "AdminOnly")]
         public IActionResult FindAllAccounts()
         {
             try
             {
-                var accounts = _accountRepository.FindAllAccounts();
-                var accountsDTO = accounts.Select(a => new AccountDTO(a)).ToList();
-                return StatusCode(StatusCodes.Status200OK, accountsDTO);
+                IEnumerable<AccountDTO> AccountDTO = _accountService.GetAllAccounts();
+                return StatusCode(200, AccountDTO);
             }
             catch (Exception e)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+                return StatusCode(500, e.Message);
             }
         }
 
         [HttpGet("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public IActionResult FindAccountById(long id)
         {
             try
             {
-                var account = _accountRepository.FindAccountById(id);
-                var accountDTO = new AccountDTO(account);
-                return StatusCode(StatusCodes.Status200OK, accountDTO);
+                AccountDTO accountDTO = _accountService.GetAccountById(id);
+                return StatusCode(200, accountDTO);
             }
             catch (Exception e)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+                return StatusCode(500, e.Message);
             }
         }
     }

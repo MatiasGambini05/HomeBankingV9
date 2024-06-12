@@ -10,12 +10,11 @@ namespace HomeBankingV9.Models
         {
             if (!context.Clients.Any())
             {
-                var clients = new Client[]
+                var client = new Client[]
                 {
-                    new Client { FirstName = "Mati", LastName = "Gambini", Email = "mati@gmail.com", Password = "1234" },
-                    new Client { FirstName = "Facu", LastName = "Sommo", Email = "facu@gmail.com", Password = "1234" }
+                    new Client { FirstName = "Mati", LastName = "Gambini", Email = "mati@gmail.com", Password = "$2a$11$tEL3liMn.RaPh3oWDaKZVeREQM..xaQHIfjCtb3XE3z7qUi4ESQg." },
                 };
-                context.Clients.AddRange(clients);
+                context.Clients.AddRange(client);
                 context.SaveChanges();
             }
 

@@ -1,6 +1,7 @@
 ﻿using HomeBankingV9.DTOs;
 using HomeBankingV9.Models;
 using HomeBankingV9.Repositories;
+using HomeBankingV9.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,14 +16,16 @@ namespace HomeBankingV9.Controllers
         private readonly IAccountRepository _accountRepository;
         private readonly ITransactionRepository _transactionRepository;
         private readonly ILoanRepository _loanRepository;
+        private readonly ILoanService _loanService;
         private readonly IClientLoansRepository _clientLoansRepository;
         public LoansController(IClientRepository clientRepository, IAccountRepository accountRepository, ITransactionRepository transactionRepository,
-              ILoanRepository loanRepository, IClientLoansRepository clientLoansRepository)
+              ILoanRepository loanRepository, ILoanService loanService, IClientLoansRepository clientLoansRepository)
         {
             _clientRepository = clientRepository;
             _accountRepository = accountRepository;
             _transactionRepository = transactionRepository;
             _loanRepository = loanRepository;
+            _loanService = loanService;
             _clientLoansRepository = clientLoansRepository;
         }
 
@@ -32,7 +35,7 @@ namespace HomeBankingV9.Controllers
         {
             try
             {
-                var loans = _loanRepository.FindAllLoans();
+                var loans = _loanService.GetAllLoans();
                 return StatusCode(200, loans);
             }
             catch (Exception e)
@@ -49,15 +52,15 @@ namespace HomeBankingV9.Controllers
             {
                 if (String.IsNullOrEmpty(newLoanDTO.LoanId.ToString()) || String.IsNullOrEmpty(newLoanDTO.ToAccountNumber) || //Verificar que ningún campo esté vacío.
                     String.IsNullOrEmpty(newLoanDTO.Payments) || newLoanDTO.Amount <= 0)
-                    return Forbid();
+                    return StatusCode(403, "Ningún campo puede estar vacío.");
 
                 var loans = _loanRepository.FindAllLoans();
-                if (!loans.Any(l => l.Id == newLoanDTO.LoanId)) //Verificar que el ID del prestamo exista. REVISAR.
-                    return Forbid();
+                if (!loans.Any(l => l.Id == newLoanDTO.LoanId)) //Verificar que el ID del prestamo exista.
+                    return StatusCode(403, "El ID del préstamo no existe.");
 
                 var requiredLoan = _loanRepository.FindLoanById(newLoanDTO.LoanId);
                 if (newLoanDTO.Amount > requiredLoan.MaxAmount) //Verificar que el monto solicitado no supere al máximo del prestamo.
-                    return Forbid();
+                    return StatusCode(403, "El monto solicitado excede al máximo del préstamo.");
 
                 var paymentList = requiredLoan.Payments.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                             .Select(payment => int.Parse(payment.Trim()))
@@ -65,7 +68,7 @@ namespace HomeBankingV9.Controllers
                 var paymentToInt = int.Parse(newLoanDTO.Payments);
 
                 if (!paymentList.Contains(paymentToInt)) //Verificar que la cantidad de cuotas solicitada coincida con las que brinda el prestamo.
-                    return Forbid();
+                    return StatusCode(403, "La cantidad de cuotas solicitada no es válida para este préstamo.");
 
                 var clientEmail = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
                 Client client = _clientRepository.FindClientByEmail(clientEmail);
@@ -77,9 +80,9 @@ namespace HomeBankingV9.Controllers
                 if (allAccounts.Any(a => loanAccount.Number == newLoanDTO.ToAccountNumber)) //Verificar que la cuenta de destino exista.
                 {
                     if (!clientAccounts.Any(a => a.Number == newLoanDTO.ToAccountNumber)) //Verificar que la cuenta destino pertenezca al cliente.
-                        return Forbid();
+                        return StatusCode(403, "La cuenta destino no pertenece a este cliente.");
                 } else
-                    return Forbid();
+                    return StatusCode(403, "La cuenta destino no existe.");
 
                 var loanAmount = newLoanDTO.Amount * 1.2;
                 ClientLoan clientLoan = new ClientLoan //Crear prestamo.
